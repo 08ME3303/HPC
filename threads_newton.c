@@ -90,7 +90,10 @@ else
 	for(int i=0;i<dimension;i++)
 	{//printf("\n");
 		for(int j=0;j<3*(dimension);j++)
-		{fprintf(write,"%d ",rgb[i][j]);
+		{
+			pthread_mutex_lock(&mutex_write);
+			fprintf(write,"%d ",rgb[i][j]);
+			pthread_mutex_unlock(&mutex_write);
                //  printf("rgb print %d /n", rgb[i][j]);
 		}fprintf(write,"\n");	}
 	int iter=50;
@@ -102,7 +105,10 @@ else
 		for(int i=0;i<dimension;i++)
 		{//printf("\n");
 		for(int j=0;j<3*(dimension);j++)
-		{fprintf(write1,"%d ",convergence[i][j]);
+		{	
+			pthread_mutex_lock(&mutex_write);
+			fprintf(write1,"%d ",convergence[i][j]);
+			pthread_mutex_unlock(&mutex_write);
 	}fprintf(write1,"\n");
 	}
 
@@ -166,12 +172,15 @@ void* newtonmethod(void *restrict arg)
 						}	}
 				}}
 			root=result*rgbscaling	;
+			
+			pthread_mutex_lock(&mutex_write);
 			rgb[i][counter]=(int)root/(255*255);
                         rgb[i][counter+1]=(int)(root/255)%255;
                         rgb[i][counter+2]=(int) root%255;
                         convergence[i][counter]=(int)n;
                         convergence[i][counter+1]=(int)n;
                         convergence[i][counter+2]=(int)n;
+            pthread_mutex_unlock(&mutex_write);
 			counter=counter+3;
 		}}}
 void mul_cpx_mainfile(double *a_re,double *a_im,double *b_re,double *b_im,int k){
